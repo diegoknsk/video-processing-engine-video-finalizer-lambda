@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="VideoProcessing.Finalizer.Lambda/VideoProcessing.Finalizer.Lambda.csproj" Id="2709d605-b519-4fb0-aded-8db23ac6ca5d" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

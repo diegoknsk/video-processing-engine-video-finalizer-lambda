@@ -1,0 +1,24 @@
+# Build
+bin/
+obj/
+publish/
+
+# Test
+TestResults/
+coverage*.xml
+*.trx
+*.coverage
+
+# IDE
+.idea/
+.vscode/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Lambda
+response.json
+deployment-package.zip
