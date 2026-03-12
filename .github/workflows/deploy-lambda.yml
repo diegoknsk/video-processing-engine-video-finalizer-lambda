@@ -35,18 +35,16 @@ jobs:
       - name: Run tests
         run: dotnet test --configuration Release --no-build --verbosity normal
 
-      - name: Publish application
+      - name: Install Amazon.Lambda.Tools
         run: |
-          dotnet publish src/InterfacesExternas/VideoProcessing.Finalizer.Lambda/VideoProcessing.Finalizer.Lambda.csproj \
+          dotnet tool install -g Amazon.Lambda.Tools
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+      - name: Create Lambda deployment package
+        run: |
+          dotnet lambda package \
+            --project-location src/InterfacesExternas/VideoProcessing.Finalizer.Lambda \
             --configuration Release \
-            --runtime linux-x64 \
-            --self-contained false \
-            --output ./publish
-
-      - name: Create deployment package
-        run: |
-          cd publish
-          zip -r ../deployment-package.zip .
+            --output-package deployment-package.zip
 
       - name: Configure AWS credentials
         if: github.event_name == 'push'
