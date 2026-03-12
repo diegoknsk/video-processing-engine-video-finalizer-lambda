@@ -1,0 +1,5 @@
+{
+  "framesBucket": "SEU-BUCKET-DE-ORIGEM",
+  "framesBasePrefix": "processed/video-id/job-id",
+  "outputBucket": "SEU-BUCKET-DE-DESTINO"
+}

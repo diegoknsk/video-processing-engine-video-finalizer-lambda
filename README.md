@@ -4,13 +4,18 @@ AWS Lambda responsável pela finalização do processamento, consolidando as ima
 
 ## Estrutura do Projeto
 
+O repositório segue convenções de Clean Architecture (ver [Estrutura do repositório](#estrutura-do-repositório) abaixo).
+
 ```
 .
 ├── src/
-│   └── VideoProcessing.Finalizer/     # Projeto principal da Lambda
-│       ├── Function.cs                 # Handler Lambda
-│       └── VideoProcessing.Finalizer.csproj
-├── test/
+│   ├── Core/                           # Reservado para Domain e Application (Clean Architecture)
+│   ├── Infra/                          # Reservado para projetos de infraestrutura
+│   └── InterfacesExternas/
+│       └── VideoProcessing.Finalizer.Lambda/   # Projeto da Lambda
+│           ├── Function.cs
+│           └── VideoProcessing.Finalizer.Lambda.csproj
+├── tests/
 │   └── VideoProcessing.Finalizer.Tests/
 │       ├── FunctionTests.cs
 │       └── VideoProcessing.Finalizer.Tests.csproj
@@ -19,6 +24,15 @@ AWS Lambda responsável pela finalização do processamento, consolidando as ima
 │       └── deploy-lambda.yml           # CI/CD via GitHub Actions
 └── README.md
 ```
+
+## Estrutura do repositório
+
+- **`src/Core/`** — Reservado para projetos Domain e Application (Clean Architecture).
+- **`src/Infra/`** — Reservado para projetos de infraestrutura.
+- **`src/InterfacesExternas/`** — Pontos de entrada (API, Lambda, handlers). Contém o projeto `VideoProcessing.Finalizer.Lambda`.
+- **`tests/`** — Projetos de teste.
+
+O diretório virtual da solution (.slnx) segue essa mesma organização. Convenções de camadas: `.cursor/rules/core-clean-architecture.mdc` e `.cursor/documents/quick-reference.md`. Detalhes e limites da reorganização: [docs/estrutura-repositorio.md](docs/estrutura-repositorio.md).
 
 ## Requisitos
 
@@ -46,13 +60,9 @@ dotnet test --collect:"XPlat Code Coverage"
 
 ### Handler Lambda
 
-O handler `FunctionHandler` recebe uma string (payload JSON) e retorna um objeto com:
+O handler `FunctionHandler` recebe uma string e retorna a mesma string em maiúsculas (ToUpper). Contrato atual: entrada e saída são `string`.
 
-- `message`: "Hello World from Finalizer"
-- `input`: payload recebido
-- `requestId`: ID da invocação (AwsRequestId)
-
-**Handler (configuração na AWS):** `VideoProcessing.Finalizer::VideoProcessing.Finalizer.Function::FunctionHandler`
+**Handler (configuração na AWS):** `VideoProcessing.Finalizer.Lambda::VideoProcessing.Finalizer.Lambda.Function::FunctionHandler`
 
 ## Deploy via GitHub Actions
 
@@ -102,21 +112,14 @@ aws lambda invoke \
 cat response.json
 ```
 
-**Resposta esperada:**
-```json
-{
-  "message": "Hello World from Finalizer",
-  "input": "{\"message\":\"Test from CLI\"}",
-  "requestId": "<aws-request-id>"
-}
-```
+**Resposta esperada:** string de entrada em maiúsculas (ex.: `"{\"MESSAGE\":\"TEST FROM CLI\"}"`).
 
 ## Logs no CloudWatch
 
 Os logs da execução aparecem em:
 
 - **Grupo de logs:** `/aws/lambda/video-processing-engine-dev-finalizer`
-- **Conteúdo:** Log de entrada (payload recebido), log de saída (mensagem e RequestId)
+- **Conteúdo:** Log de entrada e saída da execução
 
 Para visualizar:
 
@@ -128,10 +131,10 @@ Para visualizar:
 
 Os testes unitários validam:
 
-- Mensagem de retorno esperada
-- Tratamento de input nulo
-- RequestId no contexto
-- Logging de entrada e saída
+- Retorno em maiúsculas (ToUpper) para entrada válida
+- Comportamento com entrada JSON
+- Tratamento de input nulo (exceção)
+- Entrada vazia
 
 **Cobertura mínima:** 80% (meta da story)
 
@@ -139,11 +142,11 @@ Os testes unitários validam:
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
-O relatório é gerado em `test/.../TestResults/.../coverage.cobertura.xml`.
+O relatório é gerado em `tests/.../TestResults/.../coverage.cobertura.xml`.
 
 ## Pré-condições para Deploy
 
 - A função Lambda `video-processing-engine-dev-finalizer` deve estar provisionada na AWS (via IaC)
 - Runtime: .NET 10 (ou compatível)
-- Handler configurado: `VideoProcessing.Finalizer::VideoProcessing.Finalizer.Function::FunctionHandler`
+- Handler configurado: `VideoProcessing.Finalizer.Lambda::VideoProcessing.Finalizer.Lambda.Function::FunctionHandler`
 - Credenciais AWS configuradas nos GitHub Secrets

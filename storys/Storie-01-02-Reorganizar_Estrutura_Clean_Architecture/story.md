@@ -57,6 +57,6 @@ Mover o projeto Lambda da raiz para `src/InterfacesExternas/`, criar a estrutura
 - [ ] Nenhuma referência quebrada a caminhos antigos (Lambda na raiz, pasta `test/`) em scripts, workflows ou documentação
 
 ## Rastreamento (dev tracking)
-- **Início:** —
+- **Início:** 11/03/2026, às 08:40 (Brasília)
 - **Fim:** —
 - **Tempo total de desenvolvimento:** —
