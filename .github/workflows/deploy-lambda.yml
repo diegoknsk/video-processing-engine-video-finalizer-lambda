@@ -3,79 +3,93 @@ name: Deploy Lambda Finalizer
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
-env:
-  LAMBDA_FUNCTION_NAME: video-processing-engine-dev-finalizer
-  AWS_REGION: us-east-1
-
 jobs:
-  build-and-deploy:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET 10
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore
 
-      - name: Build solution
+      - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Run tests
-        run: dotnet test --configuration Release --no-build --verbosity normal
+      - name: Test
+        run: dotnet test --no-build --configuration Release --verbosity normal
 
-      - name: Publish application
-        run: |
-          dotnet publish src/InterfacesExternas/VideoProcessing.Finalizer.Lambda/VideoProcessing.Finalizer.Lambda.csproj \
-            --configuration Release \
-            --runtime linux-x64 \
-            --self-contained false \
-            --output ./publish
+  deploy:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      LAMBDA_FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME || 'video-processing-engine-dev-video-finalizer' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Create deployment package
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build Release
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Install Lambda Tools
+        run: dotnet tool install -g Amazon.Lambda.Tools
+
+      - name: Package Lambda
         run: |
-          cd publish
-          zip -r ../deployment-package.zip .
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          mkdir -p artifacts
+          dotnet lambda package -o artifacts/VideoFinalizer.zip -c Release -pl src/InterfacesExternas/VideoProcessing.Finalizer.Lambda
 
       - name: Configure AWS credentials
-        if: github.event_name == 'push'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION || 'us-east-1' }}
 
-      - name: Deploy to Lambda
-        if: github.event_name == 'push'
+      - name: Update Lambda function code
         run: |
           aws lambda update-function-code \
-            --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-            --zip-file fileb://deployment-package.zip
+            --function-name "${{ env.LAMBDA_FUNCTION_NAME }}" \
+            --zip-file fileb://artifacts/VideoFinalizer.zip
 
-      - name: Wait for Lambda update
-        if: github.event_name == 'push'
+      - name: Wait for code update
         run: |
           aws lambda wait function-updated \
-            --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
+            --function-name "${{ env.LAMBDA_FUNCTION_NAME }}"
 
-      - name: Verify deployment
-        if: github.event_name == 'push'
+      - name: Set Lambda handler and runtime
         run: |
-          aws lambda get-function \
-            --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-            --query 'Configuration.{Name:FunctionName,LastModified:LastModified,Runtime:Runtime,State:State}'
+          aws lambda update-function-configuration \
+            --function-name "${{ env.LAMBDA_FUNCTION_NAME }}" \
+            --handler "VideoProcessing.Finalizer.Lambda::VideoProcessing.Finalizer.Lambda.Function::FunctionHandler" \
+            --runtime dotnet10
 
-      - name: Upload artifact
+      - name: Wait for configuration update
+        run: |
+          aws lambda wait function-updated \
+            --function-name "${{ env.LAMBDA_FUNCTION_NAME }}"
+          echo "Lambda function updated successfully"
+
+      - name: Upload Lambda package
         uses: actions/upload-artifact@v4
         with:
-          name: deployment-package
-          path: deployment-package.zip
+          name: lambda-package
+          path: artifacts/VideoFinalizer.zip
