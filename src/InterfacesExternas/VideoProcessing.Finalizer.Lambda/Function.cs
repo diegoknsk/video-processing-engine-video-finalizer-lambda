@@ -58,7 +58,7 @@ public class Function
             framesDir = await _framesZipService.DownloadFramesAsync(bucket, keys, basePrefix).ConfigureAwait(false);
             context.Logger.LogInformation($"Frames baixados em {framesDir}");
 
-            context.Logger.LogInformation("OrdenaAutomaticamente={OrdenaAutomaticamente}", inputModel.OrdenaAutomaticamente);
+            context.Logger.LogInformation($"OrdenaAutomaticamente={inputModel.OrdenaAutomaticamente}");
             _framesZipService.CreateZip(framesDir, zipPath, inputModel.OrdenaAutomaticamente);
             context.Logger.LogInformation($"ZIP criado: {zipPath}");
 
