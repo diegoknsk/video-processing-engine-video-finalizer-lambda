@@ -55,12 +55,14 @@ internal static class FrameRenamer
                 withoutTime.Add(path);
         }
 
-        // Ordenar por segundos crescente; desempate estável por nome original (ordem alfabética)
+        // Ordenar por segundos crescente; desempate estável por nome e depois por caminho completo
         withTime.Sort((a, b) =>
         {
             var cmp = a.Seconds.CompareTo(b.Seconds);
             if (cmp != 0) return cmp;
-            return StringComparer.OrdinalIgnoreCase.Compare(Path.GetFileName(a.Path), Path.GetFileName(b.Path));
+            var nameCmp = StringComparer.OrdinalIgnoreCase.Compare(Path.GetFileName(a.Path), Path.GetFileName(b.Path));
+            if (nameCmp != 0) return nameCmp;
+            return StringComparer.Ordinal.Compare(a.Path, b.Path);
         });
 
         var totalCount = localFilePaths.Count;
