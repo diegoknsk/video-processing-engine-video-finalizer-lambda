@@ -136,6 +136,70 @@ public class FramesZipServiceTests
     }
 
     [Fact]
+    public void CreateZip_ComOrdenaAutomaticamenteTrue_ColocaFramesNaRaizComNomesRenomeados()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        var zipPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".zip");
+        try
+        {
+            var chunk1 = Path.Combine(tempDir, "chunk-001", "frames");
+            var chunk2 = Path.Combine(tempDir, "chunk-002", "frames");
+            Directory.CreateDirectory(chunk1);
+            Directory.CreateDirectory(chunk2);
+            File.WriteAllText(Path.Combine(chunk1, "frame_0001_20s.jpg"), "fake");
+            File.WriteAllText(Path.Combine(chunk2, "frame_0001_0s.jpg"), "fake");
+            File.WriteAllText(Path.Combine(chunk1, "frame_0002_5s.jpg"), "fake");
+
+            var sut = new FramesZipService(_s3, Path.GetTempPath());
+            sut.CreateZip(tempDir, zipPath, ordenaAutomaticamente: true);
+
+            File.Exists(zipPath).Should().BeTrue();
+            using (var archive = ZipFile.OpenRead(zipPath))
+            {
+                archive.Entries.Should().HaveCount(3);
+                var names = archive.Entries.Select(e => e.Name).ToList();
+                archive.Entries.Should().OnlyContain(e => !e.FullName.Contains('/'));
+                names.Should().Contain("frame_0001_0s.jpg");
+                names.Should().Contain("frame_0002_5s.jpg");
+                names.Should().Contain("frame_0003_20s.jpg");
+            }
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+            if (File.Exists(zipPath)) File.Delete(zipPath);
+        }
+    }
+
+    [Fact]
+    public void CreateZip_ComOrdenaAutomaticamenteFalse_PreservaEstruturaRelativa()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        var zipPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".zip");
+        try
+        {
+            var subDir = Path.Combine(tempDir, "chunk-001", "frames");
+            Directory.CreateDirectory(subDir);
+            File.WriteAllText(Path.Combine(subDir, "frame_0001_0s.jpg"), "fake");
+
+            var sut = new FramesZipService(_s3, Path.GetTempPath());
+            sut.CreateZip(tempDir, zipPath, ordenaAutomaticamente: false);
+
+            using (var archive = ZipFile.OpenRead(zipPath))
+            {
+                archive.Entries.Should().HaveCount(1);
+                archive.Entries[0].FullName.Should().Contain("chunk-001");
+                archive.Entries[0].FullName.Should().Contain("frames");
+            }
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+            if (File.Exists(zipPath)) File.Delete(zipPath);
+        }
+    }
+
+    [Fact]
     public void CreateZip_DiretorioVazio_LancaInvalidOperationException()
     {
         var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));

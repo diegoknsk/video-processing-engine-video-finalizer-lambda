@@ -96,9 +96,11 @@ public sealed class FramesZipService(IAmazonS3 s3Client, string tempBasePath = "
     }
 
     /// <summary>
-    /// Cria um ZIP em zipPath a partir do diretório de frames. Usa CompressionLevel.Fastest e includeBaseDirectory: false.
+    /// Cria um ZIP em zipPath a partir do diretório de frames.
+    /// Quando ordenaAutomaticamente é true, os arquivos são renomeados sequencialmente por instante de tempo e colocados na raiz do ZIP.
+    /// Quando false, mantém a estrutura relativa de diretórios (comportamento anterior).
     /// </summary>
-    public void CreateZip(string framesDir, string zipPath)
+    public void CreateZip(string framesDir, string zipPath, bool ordenaAutomaticamente = true)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(framesDir);
         ArgumentException.ThrowIfNullOrWhiteSpace(zipPath);
@@ -114,11 +116,23 @@ public sealed class FramesZipService(IAmazonS3 s3Client, string tempBasePath = "
         if (!string.IsNullOrEmpty(zipDir) && !Directory.Exists(zipDir))
             Directory.CreateDirectory(zipDir);
 
-        ZipFile.CreateFromDirectory(
-            framesDir,
-            zipPath,
-            CompressionLevel.Fastest,
-            includeBaseDirectory: false);
+        if (ordenaAutomaticamente)
+        {
+            var entries = FrameRenamer.GenerateRenamedEntries(files);
+            using (var archive = ZipFile.Open(zipPath, ZipArchiveMode.Create))
+            {
+                foreach (var (localPath, entryName) in entries)
+                    archive.CreateEntryFromFile(localPath, entryName, CompressionLevel.Fastest);
+            }
+        }
+        else
+        {
+            ZipFile.CreateFromDirectory(
+                framesDir,
+                zipPath,
+                CompressionLevel.Fastest,
+                includeBaseDirectory: false);
+        }
     }
 
     /// <summary>

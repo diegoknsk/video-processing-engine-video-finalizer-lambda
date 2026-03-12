@@ -63,4 +63,20 @@ public class FinalizerInputTests
         var result = JsonSerializer.Deserialize<FinalizerInput>(json, JsonOptions);
         result!.OutputBucket.Should().BeNullOrEmpty();
     }
+
+    [Fact]
+    public void Deserialize_SemOrdenaAutomaticamente_DefaultTrue()
+    {
+        var json = """{"framesBucket": "b", "framesBasePrefix": "p/", "outputBucket": "o", "videoId": "v", "outputBasePrefix": "out/"}""";
+        var result = JsonSerializer.Deserialize<FinalizerInput>(json, JsonOptions);
+        result!.OrdenaAutomaticamente.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Deserialize_ComOrdenaAutomaticamenteFalse_RetornaFalse()
+    {
+        var json = """{"framesBucket": "b", "framesBasePrefix": "p/", "outputBucket": "o", "videoId": "v", "outputBasePrefix": "out/", "ordenaAutomaticamente": false}""";
+        var result = JsonSerializer.Deserialize<FinalizerInput>(json, JsonOptions);
+        result!.OrdenaAutomaticamente.Should().BeFalse();
+    }
 }
