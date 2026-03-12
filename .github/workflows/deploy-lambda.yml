@@ -9,6 +9,7 @@ on:
 
 env:
   LAMBDA_FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME || 'video-processing-engine-dev-video-finalizer' }}
+  LAMBDA_HANDLER: VideoProcessing.Finalizer.Lambda::VideoProcessing.Finalizer.Lambda.Function::FunctionHandler
   AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
 
 jobs:
@@ -67,12 +68,25 @@ jobs:
           aws lambda wait function-updated \
             --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
 
+      - name: Update Lambda handler
+        if: github.event_name == 'push'
+        run: |
+          aws lambda update-function-configuration \
+            --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+            --handler ${{ env.LAMBDA_HANDLER }}
+
+      - name: Wait for Lambda configuration update
+        if: github.event_name == 'push'
+        run: |
+          aws lambda wait function-updated \
+            --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
+
       - name: Verify deployment
         if: github.event_name == 'push'
         run: |
           aws lambda get-function \
             --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-            --query 'Configuration.{Name:FunctionName,LastModified:LastModified,Runtime:Runtime,State:State}'
+            --query 'Configuration.{Name:FunctionName,Handler:Handler,LastModified:LastModified,Runtime:Runtime,State:State}'
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
