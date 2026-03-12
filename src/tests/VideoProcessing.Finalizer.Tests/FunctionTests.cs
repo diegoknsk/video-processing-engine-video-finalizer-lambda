@@ -11,9 +11,10 @@ namespace VideoProcessing.Finalizer.Tests;
 
 public class FunctionTests
 {
-    private static Stream JsonToStream(string json)
+    private static JsonElement JsonToElement(string json)
     {
-        return new MemoryStream(Encoding.UTF8.GetBytes(json));
+        using var doc = JsonDocument.Parse(json);
+        return doc.RootElement.Clone();
     }
 
     private const string PayloadValido = """{"framesBucket": "b1", "framesBasePrefix": "p/job1", "outputBucket": "b2", "videoId": "vid-1", "outputBasePrefix": "usr123/vid-1"}""";
@@ -30,7 +31,7 @@ public class FunctionTests
         var function = new Function(service);
         var context = new TestLambdaContext();
 
-        var result = await function.FunctionHandler(JsonToStream(PayloadValido), context);
+        var result = await function.FunctionHandler(JsonToElement(PayloadValido), context);
 
         result.ZipS3Key.Should().Be("usr123/vid-1/vid-1_frames.zip");
         result.ZipS3Key.Should().EndWith("_frames.zip");
@@ -45,7 +46,7 @@ public class FunctionTests
         var function = new Function(Substitute.For<IFramesZipService>());
         var context = new TestLambdaContext();
 
-        var act = () => function.FunctionHandler(JsonToStream(json), context);
+        var act = () => function.FunctionHandler(JsonToElement(json), context);
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*framesBucket*");
@@ -58,7 +59,7 @@ public class FunctionTests
         var function = new Function(Substitute.For<IFramesZipService>());
         var context = new TestLambdaContext();
 
-        var act = () => function.FunctionHandler(JsonToStream(json), context);
+        var act = () => function.FunctionHandler(JsonToElement(json), context);
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*framesBasePrefix*");
@@ -71,7 +72,7 @@ public class FunctionTests
         var function = new Function(Substitute.For<IFramesZipService>());
         var context = new TestLambdaContext();
 
-        var act = () => function.FunctionHandler(JsonToStream(json), context);
+        var act = () => function.FunctionHandler(JsonToElement(json), context);
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*outputBucket*");
@@ -84,7 +85,7 @@ public class FunctionTests
         var function = new Function(Substitute.For<IFramesZipService>());
         var context = new TestLambdaContext();
 
-        var act = () => function.FunctionHandler(JsonToStream(json), context);
+        var act = () => function.FunctionHandler(JsonToElement(json), context);
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*videoId*");
@@ -97,7 +98,7 @@ public class FunctionTests
         var function = new Function(Substitute.For<IFramesZipService>());
         var context = new TestLambdaContext();
 
-        var act = () => function.FunctionHandler(JsonToStream(json), context);
+        var act = () => function.FunctionHandler(JsonToElement(json), context);
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*outputBasePrefix*");
@@ -119,7 +120,7 @@ public class FunctionTests
         var function = new Function(service);
         var context = new TestLambdaContext();
 
-        var result = await function.FunctionHandler(JsonToStream(sqsJson), context);
+        var result = await function.FunctionHandler(JsonToElement(sqsJson), context);
 
         result.FramesCount.Should().Be(1);
     }
@@ -133,7 +134,7 @@ public class FunctionTests
         var function = new Function(service);
         var context = new TestLambdaContext();
 
-        var act = () => function.FunctionHandler(JsonToStream(PayloadValido), context);
+        var act = () => function.FunctionHandler(JsonToElement(PayloadValido), context);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*Nenhum frame encontrado*");

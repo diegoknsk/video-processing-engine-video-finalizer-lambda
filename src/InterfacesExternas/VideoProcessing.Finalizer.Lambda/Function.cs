@@ -31,15 +31,16 @@ public class Function
     /// <summary>
     /// Handler que consolida frames de múltiplos chunks S3 em um único ZIP e envia ao bucket de saída.
     /// Aceita payload direto (Step Functions) ou envelope SQS (Body com JSON do FinalizerInput).
+    /// Assinatura com JsonElement permite deserialização no Lambda Test Tool e na Lambda real.
     /// </summary>
-    public async Task<FinalizerResult> FunctionHandler(Stream input, ILambdaContext context)
+    public async Task<FinalizerResult> FunctionHandler(JsonElement input, ILambdaContext context)
     {
         string? framesDir = null;
         string? zipPath = null;
 
         try
         {
-            var inputModel = await ParseInputAsync(input).ConfigureAwait(false);
+            var inputModel = ParseInput(input);
             ValidateInput(inputModel);
 
             var bucket = inputModel.FramesBucket!;
@@ -88,11 +89,8 @@ public class Function
         }
     }
 
-    private static async Task<FinalizerInput> ParseInputAsync(Stream input)
+    private static FinalizerInput ParseInput(JsonElement root)
     {
-        using var doc = await JsonDocument.ParseAsync(input).ConfigureAwait(false);
-        var root = doc.RootElement;
-
         string jsonToParse;
         if (root.TryGetProperty("Records", out var records) && records.ValueKind == JsonValueKind.Array && records.GetArrayLength() > 0)
         {
