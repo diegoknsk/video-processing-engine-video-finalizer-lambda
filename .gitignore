@@ -1,0 +1,48 @@
+# Build
+[Bb]in/
+[Oo]bj/
+[Pp]ublish/
+[Dd]ebug/
+[Rr]elease/
+out/
+
+# Test
+[Tt]est[Rr]esults/
+[Cc]overage/
+*.trx
+*.coverage
+coverage*.xml
+*.Coverage.xml
+
+# IDE - Visual Studio
+.vs/
+*.user
+*.userosscache
+*.suo
+*.cache
+*.rsuser
+*.sln.docstates
+*.vbproj.user
+
+# IDE - JetBrains / outros (Cursor: versionado)
+.idea/
+.vscode/
+
+# NuGet
+.nuget/
+packages/
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Lambda / AWS
+response.json
+deployment-package.zip

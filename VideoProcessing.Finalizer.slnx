@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Folder Name="/src/Core/" />
+    <Folder Name="/src/Infra/" />
+    <Folder Name="/src/InterfacesExternas/">
+      <Project Path="src/InterfacesExternas/VideoProcessing.Finalizer.Lambda/VideoProcessing.Finalizer.Lambda.csproj" />
+    </Folder>
+  </Folder>
+  <Folder Name="/src/Core/" />
+  <Folder Name="/src/Infra/" />
+  <Folder Name="/src/InterfacesExternas/">
+    <Project Path="src/InterfacesExternas/VideoProcessing.Finalizer.Lambda/VideoProcessing.Finalizer.Lambda.csproj" />
+  </Folder>
+  <Folder Name="/src/tests/">
+    <Project Path="src/tests/VideoProcessing.Finalizer.Tests/VideoProcessing.Finalizer.Tests.csproj" />
+  </Folder>
+</Solution>
