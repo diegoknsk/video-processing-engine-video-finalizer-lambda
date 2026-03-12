@@ -50,6 +50,6 @@ Implementar renomeação automática e opcionalmente ativável dos frames no ZIP
 - [ ] Testes unitários para `FrameRenamer` cobrindo: parse de tempo válido, sufixo ausente, ordenação com empate, padding dinâmico; cobertura ≥ 80% das novas classes/métodos
 
 ## Rastreamento (dev tracking)
-- **Início:** —
+- **Início:** 12/03/2026, às 00:49 (Brasília)
 - **Fim:** —
 - **Tempo total de desenvolvimento:** —

@@ -58,7 +58,8 @@ public class Function
             framesDir = await _framesZipService.DownloadFramesAsync(bucket, keys, basePrefix).ConfigureAwait(false);
             context.Logger.LogInformation($"Frames baixados em {framesDir}");
 
-            _framesZipService.CreateZip(framesDir, zipPath);
+            context.Logger.LogInformation("OrdenaAutomaticamente={OrdenaAutomaticamente}", inputModel.OrdenaAutomaticamente);
+            _framesZipService.CreateZip(framesDir, zipPath, inputModel.OrdenaAutomaticamente);
             context.Logger.LogInformation($"ZIP criado: {zipPath}");
 
             var zipS3Key = FramesZipService.BuildZipS3Key(outputBasePrefix, videoId);

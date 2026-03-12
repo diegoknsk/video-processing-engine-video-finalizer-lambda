@@ -22,4 +22,10 @@ public sealed class FinalizerInput
 
     [JsonPropertyName("outputBasePrefix")]
     public string? OutputBasePrefix { get; set; }
+
+    /// <summary>
+    /// Quando true (padrão), os frames no ZIP são renomeados sequencialmente e ordenados por instante de tempo, na raiz do ZIP.
+    /// </summary>
+    [JsonPropertyName("ordenaAutomaticamente")]
+    public bool OrdenaAutomaticamente { get; set; } = true;
 }
