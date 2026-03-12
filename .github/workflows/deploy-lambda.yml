@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  LAMBDA_FUNCTION_NAME: video-processing-engine-dev-finalizer
-  AWS_REGION: us-east-1
+  LAMBDA_FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME || 'video-processing-engine-dev-video-finalizer' }}
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
 
 jobs:
   build-and-deploy:
