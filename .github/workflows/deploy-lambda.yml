@@ -47,20 +47,14 @@ jobs:
       - name: Build Release
         run: dotnet build --configuration Release --no-restore
 
+      - name: Install Lambda Tools
+        run: dotnet tool install -g Amazon.Lambda.Tools
+
       - name: Package Lambda
         run: |
-          LAMBDA_PROJECT=src/InterfacesExternas/VideoProcessing.Finalizer.Lambda
+          export PATH="$PATH:$HOME/.dotnet/tools"
           mkdir -p artifacts
-          # Publicar para linux-x64 (ambiente Lambda) garantindo .deps.json e binários na raiz
-          dotnet publish "$LAMBDA_PROJECT" \
-            --configuration Release \
-            --runtime linux-x64 \
-            --output ./publish-lambda \
-            --self-contained false
-          # ZIP com conteúdo na raiz (exigido: /var/task contém .deps.json e .dll na raiz)
-          cd publish-lambda && zip -r ../artifacts/VideoFinalizer.zip . && cd ..
-          # Validar presença do .deps.json na raiz do ZIP
-          unzip -l artifacts/VideoFinalizer.zip | grep -E '\.deps\.json|\.runtimeconfig\.json' || (echo "ERRO: .deps.json ou .runtimeconfig.json ausentes na raiz do pacote"; exit 1)
+          dotnet lambda package -o artifacts/VideoFinalizer.zip -c Release -pl src/InterfacesExternas/VideoProcessing.Finalizer.Lambda
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
