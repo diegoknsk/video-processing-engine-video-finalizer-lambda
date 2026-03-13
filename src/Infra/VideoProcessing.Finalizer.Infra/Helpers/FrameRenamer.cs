@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace VideoProcessing.Finalizer.Lambda.Services;
+namespace VideoProcessing.Finalizer.Infra.Helpers;
 
 /// <summary>
 /// Helper para extrair instante de tempo do sufixo do nome do frame (*_Ns.ext) e gerar entradas renomeadas sequencialmente.

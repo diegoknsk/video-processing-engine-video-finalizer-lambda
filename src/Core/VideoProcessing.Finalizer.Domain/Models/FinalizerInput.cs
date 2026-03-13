@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace VideoProcessing.Finalizer.Lambda.Models;
+namespace VideoProcessing.Finalizer.Domain.Models;
 
 /// <summary>
 /// Contrato de entrada da Lambda: bucket de origem dos frames, prefixo base e bucket de destino do ZIP.

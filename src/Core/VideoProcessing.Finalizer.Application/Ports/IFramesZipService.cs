@@ -1,4 +1,4 @@
-namespace VideoProcessing.Finalizer.Lambda.Services;
+namespace VideoProcessing.Finalizer.Application.Ports;
 
 /// <summary>
 /// Contrato do pipeline de consolidação de frames: listar, baixar, compactar em ZIP e enviar ao S3.

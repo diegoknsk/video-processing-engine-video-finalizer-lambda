@@ -1,6 +1,6 @@
 using System.Text.Json;
 using FluentAssertions;
-using VideoProcessing.Finalizer.Lambda.Models;
+using VideoProcessing.Finalizer.Domain.Models;
 using Xunit;
 
 namespace VideoProcessing.Finalizer.Tests;

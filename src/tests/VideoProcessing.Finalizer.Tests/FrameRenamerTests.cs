@@ -1,5 +1,5 @@
 using FluentAssertions;
-using VideoProcessing.Finalizer.Lambda.Services;
+using VideoProcessing.Finalizer.Infra.Helpers;
 using Xunit;
 
 namespace VideoProcessing.Finalizer.Tests;

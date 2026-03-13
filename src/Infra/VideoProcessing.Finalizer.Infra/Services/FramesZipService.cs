@@ -1,8 +1,10 @@
 using System.IO.Compression;
 using Amazon.S3;
 using Amazon.S3.Model;
+using VideoProcessing.Finalizer.Application.Ports;
+using VideoProcessing.Finalizer.Infra.Helpers;
 
-namespace VideoProcessing.Finalizer.Lambda.Services;
+namespace VideoProcessing.Finalizer.Infra.Services;
 
 /// <summary>
 /// Pipeline S3 → /tmp → ZIP → S3: lista frames por prefixo, baixa, compacta em ZIP e envia ao bucket de saída.

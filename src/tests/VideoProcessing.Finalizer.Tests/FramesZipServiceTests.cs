@@ -4,7 +4,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using FluentAssertions;
 using NSubstitute;
-using VideoProcessing.Finalizer.Lambda.Services;
+using VideoProcessing.Finalizer.Infra.Services;
 using Xunit;
 
 namespace VideoProcessing.Finalizer.Tests;

@@ -1,8 +1,9 @@
 using System.Text.Json;
 using Amazon.Lambda.Core;
 using Amazon.S3;
-using VideoProcessing.Finalizer.Lambda.Models;
-using VideoProcessing.Finalizer.Lambda.Services;
+using VideoProcessing.Finalizer.Application.Ports;
+using VideoProcessing.Finalizer.Domain.Models;
+using VideoProcessing.Finalizer.Infra.Services;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -124,8 +125,3 @@ public class Function
             throw new ArgumentException("O campo 'outputBasePrefix' é obrigatório e não pode ser vazio.", nameof(input));
     }
 }
-
-/// <summary>
-/// Resultado da execução: chave S3 do ZIP e quantidade de frames consolidados.
-/// </summary>
-public record FinalizerResult(string ZipBucket, string ZipS3Key, int FramesCount);
