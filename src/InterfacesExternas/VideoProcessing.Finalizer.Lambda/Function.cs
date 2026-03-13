@@ -66,7 +66,7 @@ public class Function
             var uploadedKey = await _framesZipService.UploadZipToS3Async(outputBucket, zipPath, zipS3Key).ConfigureAwait(false);
             context.Logger.LogInformation($"ZIP enviado ao S3: {uploadedKey}");
 
-            return new FinalizerResult(uploadedKey, keys.Count);
+            return new FinalizerResult(outputBucket, uploadedKey, keys.Count);
         }
         finally
         {
@@ -128,4 +128,4 @@ public class Function
 /// <summary>
 /// Resultado da execução: chave S3 do ZIP e quantidade de frames consolidados.
 /// </summary>
-public record FinalizerResult(string ZipS3Key, int FramesCount);
+public record FinalizerResult(string ZipBucket, string ZipS3Key, int FramesCount);
