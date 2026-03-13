@@ -1,7 +1,7 @@
 # Video Processing Engine - Lambda Finalizer
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=PROJECT_KEY&metric=alert_status)](https://sonarcloud.io/summary/new_code?project=PROJECT_KEY)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=PROJECT_KEY&metric=coverage)](https://sonarcloud.io/summary/new_code?project=PROJECT_KEY)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=diegoknsk_video-processing-engine-video-finalizer-lambda&metric=alert_status)](https://sonarcloud.io/summary/new_code?project=diegoknsk_video-processing-engine-video-finalizer-lambda)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=diegoknsk_video-processing-engine-video-finalizer-lambda&metric=coverage)](https://sonarcloud.io/summary/new_code?project=diegoknsk_video-processing-engine-video-finalizer-lambda)
 
 AWS Lambda responsável pela finalização do processamento, consolidando as imagens geradas, criando o arquivo ZIP final e disponibilizando-o no Amazon S3, além de sinalizar a conclusão do processamento.
 
@@ -94,7 +94,7 @@ O pipeline executa análise estática e cobertura de código no SonarCloud em **
 
 4. **Branch Protection (Settings > Branches):** Na regra da branch `main`, habilite "Require status checks to pass before merging" e adicione o check **SonarCloud Analysis**. No SonarCloud (Project Settings > GitHub), ative o webhook para reportar o Quality Gate na PR.
 
-5. **Badges no README:** Substitua `PROJECT_KEY` nas URLs dos badges (Quality Gate e Coverage) pelo valor configurado em `SONAR_PROJECT_KEY`.
+5. **Badges no README:** Os badges usam o project key `diegoknsk_video-processing-engine-video-finalizer-lambda` (o `id` na URL do projeto no SonarCloud). Se usar outra org/user, configure `SONAR_PROJECT_KEY` no GitHub e altere esse valor nas URLs dos badges.
 
 Para armadilhas comuns e checklist completo, consulte `.cursor/skills/sonarcloud-dotnet/SKILL.md`.
 
