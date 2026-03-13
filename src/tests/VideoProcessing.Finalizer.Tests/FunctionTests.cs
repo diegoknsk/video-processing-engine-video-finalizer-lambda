@@ -33,6 +33,7 @@ public class FunctionTests
 
         var result = await function.FunctionHandler(JsonToElement(PayloadValido), context);
 
+        result.ZipBucket.Should().Be("b2");
         result.ZipS3Key.Should().Be("usr123/vid-1/vid-1_frames.zip");
         result.ZipS3Key.Should().EndWith("_frames.zip");
         result.FramesCount.Should().Be(1);
@@ -122,6 +123,7 @@ public class FunctionTests
 
         var result = await function.FunctionHandler(JsonToElement(sqsJson), context);
 
+        result.ZipBucket.Should().Be("b2");
         result.FramesCount.Should().Be(1);
     }
 

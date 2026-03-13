@@ -1,5 +1,8 @@
 # Video Processing Engine - Lambda Finalizer
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=PROJECT_KEY&metric=alert_status)](https://sonarcloud.io/summary/new_code?project=PROJECT_KEY)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=PROJECT_KEY&metric=coverage)](https://sonarcloud.io/summary/new_code?project=PROJECT_KEY)
+
 AWS Lambda responsável pela finalização do processamento, consolidando as imagens geradas, criando o arquivo ZIP final e disponibilizando-o no Amazon S3, além de sinalizar a conclusão do processamento.
 
 ## Estrutura do Projeto
@@ -76,10 +79,29 @@ Configure os seguintes **Secrets** no repositório: `Settings > Secrets and vari
 | `AWS_SECRET_ACCESS_KEY` | Secret Access Key correspondente |
 | `AWS_SESSION_TOKEN` | (Opcional) Token de sessão quando usar credenciais temporárias |
 
+### SonarCloud
+
+O pipeline executa análise estática e cobertura de código no SonarCloud em **push** e **pull request** para `main`. Para ativar:
+
+1. **Secrets (Settings > Secrets and variables > Actions):**
+   - `SONAR_TOKEN` — Token gerado em [sonarcloud.io/account/security](https://sonarcloud.io/account/security).
+
+2. **Variables (Settings > Variables > Actions):**
+   - `SONAR_PROJECT_KEY` — Chave do projeto no SonarCloud (ex.: `minha-org_video-processing-engine-video-finalizer-lambda`).
+   - `SONAR_ORGANIZATION` — Slug da organização no SonarCloud.
+
+3. **SonarCloud (Administration → Analysis Method):** Desative **Automatic Analysis** para evitar falha do pipeline com "You are running CI analysis while Automatic Analysis is enabled".
+
+4. **Branch Protection (Settings > Branches):** Na regra da branch `main`, habilite "Require status checks to pass before merging" e adicione o check **SonarCloud Analysis**. No SonarCloud (Project Settings > GitHub), ative o webhook para reportar o Quality Gate na PR.
+
+5. **Badges no README:** Substitua `PROJECT_KEY` nas URLs dos badges (Quality Gate e Coverage) pelo valor configurado em `SONAR_PROJECT_KEY`.
+
+Para armadilhas comuns e checklist completo, consulte `.cursor/skills/sonarcloud-dotnet/SKILL.md`.
+
 ### Triggers
 
-- **Push para `main`:** Build, testes e deploy automático
-- **Pull Request para `main`:** Apenas build e testes (sem deploy)
+- **Push para `main`:** Análise SonarCloud, build, testes e deploy automático
+- **Pull Request para `main`:** Análise SonarCloud, build e testes (sem deploy)
 - **workflow_dispatch:** Execução manual em qualquer branch
 
 ### Execução Manual
@@ -136,13 +158,15 @@ Os testes unitários validam:
 - Tratamento de input nulo (exceção)
 - Entrada vazia
 
-**Cobertura mínima:** 80% (meta da story)
+**Cobertura mínima:** 80% (meta da story). O CI usa Coverlet (OpenCover) para o SonarCloud.
 
 ```bash
 dotnet test --collect:"XPlat Code Coverage"
+# ou com OpenCover (compatível com SonarCloud):
+dotnet test /p:CollectCoverage=true /p:CoverageReporter=opencover /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/coverage.opencover.xml
 ```
 
-O relatório é gerado em `tests/.../TestResults/.../coverage.cobertura.xml`.
+O relatório é gerado em `**/TestResults/**/coverage.opencover.xml` (OpenCover) ou `coverage.cobertura.xml` (XPlat).
 
 ## Pré-condições para Deploy
 
