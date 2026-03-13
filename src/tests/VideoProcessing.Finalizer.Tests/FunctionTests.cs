@@ -4,7 +4,7 @@ using Amazon.Lambda.TestUtilities;
 using FluentAssertions;
 using NSubstitute;
 using VideoProcessing.Finalizer.Lambda;
-using VideoProcessing.Finalizer.Lambda.Services;
+using VideoProcessing.Finalizer.Application.Ports;
 using Xunit;
 
 namespace VideoProcessing.Finalizer.Tests;
